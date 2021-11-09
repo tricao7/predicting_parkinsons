@@ -1,0 +1,28 @@
+---
+title: "DATA467_project"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(data.table)
+```
+
+```{r}
+df = readRDS('D:\\R\\data_467\\data467_project\\GSE39612_edat.RDS')
+df2 <- data.frame(t(df))
+row_names = row.names(df2)
+df2$Patient = row_names
+rownames(df2) = NULL
+
+y = read.csv('D:\\R\\data_467\\data467_project\\patient_data.csv', header = FALSE, col.names = c('Patient','Tumor_type', 'Sample_type', 'Sample_name'))
+merged_df = merge(df2,y, by = 'Patient')
+numerical_df = merged_df[,1:20184]
+categorical_df = merged_df[,c(1,20185,20186,20187)]
+merged_df; numerical_df; categorical_df
+```
+```{r}
+
+```
+
