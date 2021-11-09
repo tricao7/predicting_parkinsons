@@ -17,6 +17,10 @@ df2$Patient = row_names
 rownames(df2) = NULL
 
 y = read.csv('D:\\R\\data_467\\data467_project\\patient_data.csv', header = FALSE, col.names = c('Patient','Tumor_type', 'Sample_type', 'Sample_name'))
+y$Tumor_type = gsub(',','', y$Tumor_type)
+y$Sample_type = gsub(',','', y$Sample_type)
+y$Sample_name = gsub(',','', y$Sample_name)
+
 merged_df = merge(df2,y, by = 'Patient')
 numerical_df = merged_df[,1:20184]
 categorical_df = merged_df[,c(1,20185,20186,20187)]
