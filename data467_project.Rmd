@@ -9,6 +9,7 @@ library(ggplot2)
 library(data.table)
 library(glmnet)
 library(rsample)
+library(leaps)
 ```
 
 ```{r}
@@ -25,15 +26,28 @@ y$Sample_name = gsub(',','', y$Sample_name)
 
 merged_df = merge(df2,y, by = 'Patient')
 numerical_df = merged_df[,1:20184]
+numerical_df$sick = rep(1,length(numerical_df$Patient))
+numerical_df$Patient = NULL
 categorical_df = merged_df[,c(1,20185,20186,20187)]
 merged_df; numerical_df; categorical_df
 ```
 ```{r, numerical}
-numerical_split = initial_split(numerical_df, prop = 0.8)
-num_train = training(numerical_split)
-num_train
+x = regsubsets(x = sick ~., data - numerical_df, method = 'exhaustive', nvmax = 8)
+x = summary(x)
+x
+# numerical_split = initial_split(numerical_df, prop = 0.7)
+# num_train = training(numerical_split)
+# num_train_y = num_train$Patient
+# num_train_x = lm(Patient ~. , data = num_train)
+# 
+# num_test = testing(numerical_split)
+# num_test_y = num_test$Patient
+# num_test_x = lm(Patient~. , data = num_test)
+```
 
-num_test = testing(numerical_split)
-
+```{r, categorical}
+x = table(categorical_df$Tumor_type)
+x = prop.table(x)
+x
 ```
 
