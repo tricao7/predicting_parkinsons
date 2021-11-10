@@ -1,0 +1,57 @@
+---
+title: "project_option2"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr) ; library(rsample)
+library(tidyr); library(glmnet)
+library(car); library(ggplot2)
+```
+
+```{r}
+categorical_col = c(1,2,3)
+data = read.csv("D:/R/data_467/data467_project/parkinsons_updrs.data")[-categorical_col]
+for (i in 1:length(data)){
+  data[,i] = scale(data[,i], center = TRUE, scale = TRUE)
+}
+data
+```
+
+```{r, total_UPDRS}
+set.seed(7)
+
+tot_df = data[-2]
+tot_split = initial_split(tot_df , prop = 0.7, strata = 'total_UPDRS')
+tot_train = training(tot_split); tot_test = testing(tot_split)
+tot_train_y = tot_train$total_UPDRS
+tot_train_x = model.matrix(lm(total_UPDRS ~ .-1, data = tot_train))
+
+tot_ridge = glmnet(x = tot_train_x, y = tot_train_y, alpha = 0)
+plot(tot_ridge, xvar = 'lambda')
+
+tot_ridge_cv = cv.glmnet(x = tot_train_x, y = tot_train_y, alpha = 0)
+plot(tot_ridge_cv)
+
+ridge_coef = coef(tot_ridge, tot_ridge_cv$lambda.1se)
+ridge_coef_df = as.data.frame(as.matrix(ridge_coef))
+colnames(ridge_coef_df) = c('slopes')
+ridge_coef_df$labels = rownames(ridge_coef_df)
+ggplot(data = ridge_coef_df, mapping = aes(x = slopes, y = labels)) + geom_point()
+```
+
+```{r, motor_UPDRS}
+set.seed(7)
+
+motor_df = data[-3]
+motor_split = initial_split(data , prop = 0.7, strata = 'motor_UPDRS')
+motor_train = training(motor_split); motor_test = testing(motor_split)
+
+motor_updrs_lm = lm(motor_UPDRS ~ ., data = motor_df)
+
+x = summary(motor_updrs_lm)
+x
+```
+
+
