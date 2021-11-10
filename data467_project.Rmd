@@ -7,6 +7,8 @@ output: pdf_document
 library(dplyr)
 library(ggplot2)
 library(data.table)
+library(glmnet)
+library(rsample)
 ```
 
 ```{r}
@@ -26,7 +28,12 @@ numerical_df = merged_df[,1:20184]
 categorical_df = merged_df[,c(1,20185,20186,20187)]
 merged_df; numerical_df; categorical_df
 ```
-```{r}
+```{r, numerical}
+numerical_split = initial_split(numerical_df, prop = 0.8)
+num_train = training(numerical_split)
+num_train
+
+num_test = testing(numerical_split)
 
 ```
 
