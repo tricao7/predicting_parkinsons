@@ -20,34 +20,46 @@ for (i in 1:length(data)){
 data
 ```
 ```{r, initial_results}
+#TOTAL UPDRS
 ggplot(full_data, aes(subject., total_UPDRS)) +
   geom_jitter(size = 0.01)+
   ggtitle('Total UPDRS Score per Subject')
+
+#MOTOR UPDRS
+ggplot(full_data, aes(subject., motor_UPDRS)) +
+  geom_jitter(size = 0.01)+
+  ggtitle('Motor UPDRS Score per Subject')
 ```
 
-```{r, total_UPDRS}
+```{r, quantitative}
 set.seed(7)
 
-tot_df = data[-2]
+tot_df = data[-2] #Removing motor_UPDRS
+
+#FULL MODEL
+lm = lm(total_UPDRS ~.-1, data = tot_df)
+summary(lm)
+
+#CROSS VALIDATION
 tot_split = initial_split(tot_df , prop = 0.7, strata = 'total_UPDRS')
 tot_train = training(tot_split); tot_test = testing(tot_split)
 tot_train_y = tot_train$total_UPDRS
 tot_train_x = model.matrix(lm(total_UPDRS ~ .-1, data = tot_train))
 
 
-#RIDGE
-tot_ridge = glmnet(x = tot_train_x, y = tot_train_y, alpha = 0)
-plot(tot_ridge, xvar = 'lambda')
-
-tot_ridge_cv = cv.glmnet(x = tot_train_x, y = tot_train_y, alpha = 0)
-plot(tot_ridge_cv)
-
-ridge_coef = coef(tot_ridge, tot_ridge_cv$lambda.1se)
-ridge_coef_df = as.data.frame(as.matrix(ridge_coef))
-colnames(ridge_coef_df) = c('slopes')
-ridge_coef_df$labels = rownames(ridge_coef_df)
-ggplot(data = ridge_coef_df, mapping = aes(x = slopes, y = labels)) + geom_point()
-ridge_coef_df
+# #RIDGE
+# tot_ridge = glmnet(x = tot_train_x, y = tot_train_y, alpha = 0)
+# plot(tot_ridge, xvar = 'lambda')
+# 
+# tot_ridge_cv = cv.glmnet(x = tot_train_x, y = tot_train_y, alpha = 0)
+# plot(tot_ridge_cv)
+# 
+# ridge_coef = coef(tot_ridge, tot_ridge_cv$lambda.1se)
+# ridge_coef_df = as.data.frame(as.matrix(ridge_coef))
+# colnames(ridge_coef_df) = c('slopes')
+# ridge_coef_df$labels = rownames(ridge_coef_df)
+# ggplot(data = ridge_coef_df, mapping = aes(x = slopes, y = labels)) + geom_point()+ggtitle('Ridge')
+# ridge_coef_df
 
 #LASSO
 tot_lasso = glmnet(x = tot_train_x, y = tot_train_y, alpha = 1)
@@ -59,23 +71,12 @@ lasso_coef = coef(tot_lasso, tot_lasso_cv$lambda.1se)
 lasso_coef_df = as.data.frame(as.matrix(lasso_coef))
 colnames(lasso_coef_df) = c('slopes')
 lasso_coef_df$labels = rownames(lasso_coef_df)
-ggplot(data = lasso_coef_df, mapping = aes(x = slopes, y = labels)) + geom_point()
+ggplot(data = lasso_coef_df, mapping = aes(x = slopes, y = labels)) + geom_point() +ggtitle('Lasso')
 lasso_coef_df
-lm = lm(total_UPDRS ~.-1, data = tot_df)
-summary(lm)
+
 ```
 
 ```{r, motor_UPDRS}
-set.seed(7)
-
-motor_df = data[-3]
-motor_split = initial_split(data , prop = 0.7, strata = 'motor_UPDRS')
-motor_train = training(motor_split); motor_test = testing(motor_split)
-
-motor_updrs_lm = lm(motor_UPDRS ~ ., data = motor_df)
-
-x = summary(motor_updrs_lm)
-x
 ```
 
 
