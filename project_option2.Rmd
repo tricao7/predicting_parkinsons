@@ -31,14 +31,14 @@ ggplot(full_data, aes(subject., motor_UPDRS)) +
   ggtitle('Motor UPDRS Score per Subject')
 ```
 
-```{r, quantitative}
+```{r, quantitative full model}
 set.seed(7)
 
 tot_df = data[-2] #Removing motor_UPDRS
 
 #FULL MODEL
-lm = lm(total_UPDRS ~.-1, data = tot_df)
-summary(lm)
+full_model = lm(total_UPDRS ~.-1, data = tot_df)
+summary(full_model)
 
 #CROSS VALIDATION
 tot_split = initial_split(tot_df , prop = 0.7, strata = 'total_UPDRS')
@@ -76,7 +76,14 @@ lasso_coef_df
 
 ```
 
-```{r, motor_UPDRS}
+```{r, quantitative reduced model}
+red_model = lm(total_UPDRS~ test_time+ Shimmer.APQ11 + RPDE + PPE + NHR + HNR + DFA -1, data = tot_df)
+#summary(red_model)
+plot(red_model)
+anova1 = anova(red_model, full_model)
+anova1
+
+qf(0.95, anova1$Df[2], anova1$Res.Df[1])
 ```
 
 
