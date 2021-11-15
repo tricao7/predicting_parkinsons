@@ -39,7 +39,7 @@ tot_df = data[-2] #Removing motor_UPDRS
 #FULL MODEL
 full_model = lm(total_UPDRS ~.-1, data = tot_df)
 summary(full_model)
-
+plot(full_model)
 #CROSS VALIDATION
 tot_split = initial_split(tot_df , prop = 0.7, strata = 'total_UPDRS')
 tot_train = training(tot_split); tot_test = testing(tot_split)
@@ -78,12 +78,33 @@ lasso_coef_df
 
 ```{r, quantitative reduced model}
 red_model = lm(total_UPDRS~ test_time+ Shimmer.APQ11 + RPDE + PPE + NHR + HNR + DFA -1, data = tot_df)
-#summary(red_model)
+summary(red_model)
 plot(red_model)
 anova1 = anova(red_model, full_model)
 anova1
 
 qf(0.95, anova1$Df[2], anova1$Res.Df[1])
+dt(2.454,5686)
+```
+```{r}
+x <- model.matrix(red_model)
+# Find the median of each column and store in x0
+(x0 <- apply(x,2,median))
+# Find hat y0 of x0
+(y0 <- sum(x0*coef(red_model)))
+# # which is the same as
+# predict(red_model,new=data.frame(t(x0)))
+# 
+# # Let's consider the mean house on the market and predict the confidence intervals
+# 
+# # for the mean value:
+# predict(red_model,new=data.frame(t(x0)),interval="confidence")
+# 
+# # and for new observations:
+# predict(red_model,new=data.frame(t(x0)),interval="prediction")
+# 
+# # confidence intervals for individual beta_j's
+# confint(red_model)
 ```
 
 
