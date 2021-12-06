@@ -8,6 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr) ; library(rsample)
 library(tidyr); library(glmnet)
 library(car); library(ggplot2)
+library(lme4)
 ```
 
 ```{r}
@@ -17,7 +18,7 @@ data = full_data[-categorical_col]
 for (i in 1:length(data)){
   data[,i] = scale(data[,i], center = TRUE, scale = TRUE)
 }
-subject_data = full_data[-c(2,3)]
+subject_data = full_data[-c(2,3,5)]
 data
 ```
 ```{r, initial_results}
@@ -89,7 +90,11 @@ dt(2.454,5686)
 ```
 
 ```{r, LMER}
-subject_data
-subject_data %>% split
+grouped_subject = subject_data %>% 
+  group_by(subject.) %>%
+  summarise_all(funs(mean))
+grouped_subject
+gs_lm = lm(formula = total_UPDRS ~ ., data = grouped_subject)
+summary(gs_lm)
 ```
 
