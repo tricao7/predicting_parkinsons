@@ -1,6 +1,8 @@
 ---
 title: "project_option2"
-output: pdf_document
+output:
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -18,8 +20,8 @@ data = full_data[-categorical_col]
 for (i in 1:length(data)){
   data[,i] = scale(data[,i], center = TRUE, scale = TRUE)
 }
-subject_data = full_data[-c(2,3,5)]
-data
+subject_data = full_data
+head(data)
 ```
 ```{r, initial_results}
 #TOTAL UPDRS
@@ -33,7 +35,7 @@ ggplot(full_data, aes(subject., motor_UPDRS)) +
   ggtitle('Motor UPDRS Score per Subject')
 ```
 
-```{r, quantitative full model}
+```{r, basic analysis full model}
 set.seed(7)
 
 tot_df = data[-2] #Removing motor_UPDRS
@@ -78,7 +80,7 @@ lasso_coef_df
 
 ```
 
-```{r, quantitative reduced model}
+```{r, basic analysis reduced model}
 red_model = lm(total_UPDRS~ test_time+ Shimmer.APQ11 + RPDE + PPE + NHR + HNR + DFA -1, data = tot_df)
 summary(red_model)
 plot(red_model)
@@ -91,10 +93,19 @@ dt(2.454,5686)
 
 ```{r, LMER}
 grouped_subject = subject_data %>% 
-  group_by(subject.) %>%
-  summarise_all(funs(mean))
-grouped_subject
-gs_lm = lm(formula = total_UPDRS ~ ., data = grouped_subject)
-summary(gs_lm)
+  group_by(subject.)
+
+head(grouped_subject)
+gs_lmer = lmer(formula = total_UPDRS ~ sex + (1 | subject.), data = grouped_subject)
+summary(gs_lmer)
+
+ggplot(grouped_subject, aes(subject., motor_UPDRS, color = sex)) +
+  geom_jitter(size = 0.01)+
+  ggtitle('Motor UPDRS Score per Subject')
+
+gs_lm = lm(total_UPDRS ~ sex, data = grouped_subject)
+gs_me = lmer(total_UPDRS ~ (1 | subject.), data = grouped_subject)
+anova(gs_lmer, gs_me)
+anova(gs_lmer, gs_lm)
 ```
 
